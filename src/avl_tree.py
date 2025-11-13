@@ -158,3 +158,132 @@ class AVLTree:
                            self._get_height(z.rightChild))
         # Retorna a nova raiz da sub-árvore
         return y
+    
+    def delete(self, key):
+        """
+        Função pública de remoção.
+        Chama a função recursiva privada para remover da raiz.
+        """
+        self.root = self._delete_reccursive(self.root, key)
+
+    def _delete_recursive(self, node, key):
+        """
+        SRHP-07: Implementar Remoção Balanceada (Recursiva)
+        """
+
+        # --- Fase 1:  Remoção BST Padrão (Recursiva) ---
+
+        # Caso base: Nó não encontrado ou árvore vazia
+        if not node:
+            return node
+        
+        # Busca recursiva
+        if key < node.key:
+            node.leftChild = self._delete_recursive(node.leftChild, key)
+        elif key > node.key:
+            node.rightChild = self._delete_recursive(node.rightChild, key)
+        else:
+            # Nó encontrado! Agora tratamos os 3 casos de remoção:
+
+            # Caso 1: Nó com 0 ou 1 filho (esquerda ou direita)
+            if node.leftChild is None:
+                temp = node.rightChild
+                node = None # Libera o nó
+                return temp # Retorna o filho (ou None se for 0 filhos)
+            elif node.rightChild is None:
+                temp = node.leftChild
+                node = None # Libera o nó
+                return temp # Retorna o filho
+            
+            # caso 2: Nó com 2 filhos
+            # Pega o sucessor in-ordem (o menor nó da sub-árvore direita)
+            temp = self._get_min_value_node(node.rightChild)
+
+            # Copia os dados do sucessor para este nó
+            node.key = temp.key
+            node.data = temp.data
+
+            # Remove o sucessor (que agora é uma duplicata)
+            # da sub-árvore direita. Essa remoção cairá no caso 1
+            # (pois o sucessor tem no máximo 1 filho à direita).
+            node.rightChild = self._delete_recursive(node.rightChild, temp.key)
+
+            # Se a árvore ficou vazia após a remoção (só tinha 1 nó)
+            if not node:
+                return node
+            
+            # --- Fase 2: Rebalancemento (Bottom-Up) ---
+            # Este código é executado "no caminho de volta" da recursão.
+
+            # 1. Atualizar a Altura do nó atual
+            node.height = 1 + max(self._get_height(node.leftChild),
+                                self._get_height(node.rightChild))
+            
+            # 2. Calcular o Fator de Balanceamento (FB)
+            balance = self._get_balance(node)
+
+            # 3. Rebalancemento (4 Casos)
+
+            # ---- Caso 1: Rotação Simples Direita (LL) ----
+            #FB > 1 (pesado à esquerda) e FBdo filho esquerdo >= 0
+            if balance > 1 and self._get_balance(node.leftChild) >= 0:
+                return self._right_rotate(node)
+            
+            # --- Caso 2: Rotação Simples Esquerda (RR) ----
+            # FB < -1 (pesado à direita) e FB do filho direito <= 0
+            if balance < -1 and self._get_balance(node.rightChild) <= 0:
+                return self._left_rotate(node)
+            
+            # --- Caso 3: Rotação Dupla Esquerda-Direita (LR) ---
+            # FB > 1 (pesado à esquerda) e FB do filho esquerdo < 0
+            if balance > 1 and self._get_balance(node.leftChild) < 0:
+                node.leftChild = self._left_rotate(node.leftChild)
+                return self._right_rotate(node)
+            
+            # --- Caso 4: Rotação Dupla Direita-Esquerda (RL) ---
+            # FB < -1 (pesado à direita) e FB do filho direito > 0 
+            if balance < -1 and self._get_balance(node.rightChild) > 0:
+                node.rightChild = self._right_rotate(node.rightChild)
+                return self._left_rotate(node)
+            
+            # Retorna o nó (potencialmente nova raiz da sub-árvore)
+            return node
+        
+    def _get_min_value_node(self, node):
+        """
+        Função auxiliar para encontrar o nó com menor valor (sucessor in-order)
+        numa sub-árvore. Vai sempre o mais à esquerda possível.
+        """
+        current = node
+        while current.leftChild is not None:
+            current = current.leftChild
+        return current
+        
+    def find(self, key):
+        """
+        Função pública de busca.
+        Chama a função recursiva privada para buscar na raiz.
+        """
+        return self._find_recursive(self.root, key)
+
+    def _find_recursive(self, node, key):
+        """
+        SRHP-08: Implementar Busca (O(log n))
+        Busca recursivamente pela chave.
+        Retorna o 'data' (objeto Categoria) se encontar, ou None.
+        """
+        # Caso base 1: Não encontrou (chegou a uma folha nula)
+        if not node:
+            return None
+        
+        # Caso base 2: Encontrou
+        if key == node.key:
+            return node.data  # Retorna o dado (ex: objeto Categoria)
+        
+        # Passos recursivos
+        if key < node.key:
+            # Se a chave for menor, busca na sub-árvore esquerda
+            return self._find_recursive(node.leftChild, key)
+        else:
+            # Se a chave for maior, busca na sub-árvore direita
+            return self._find_recursive(node.rightChild, key)
