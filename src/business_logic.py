@@ -46,3 +46,38 @@ class SistemaRecomendacao:
         
         print(f"categoria {nome_categoria} cadastrada com sucesso")
         return True
+    
+    def cadastrar_produto(self, nome_categoria, produto_id, nome_produto, 
+                         preco, descricao="", avaliacao=0.0):
+        """
+        cadastra um produto em uma categoria existente
+        
+        args
+            nome_categoria (str) nome da categoria onde o produto sera adicionado
+            produto_id (int) id unico do produto
+            nome_produto (str) nome do produto
+            preco (float) preco do produto
+            descricao (str) descricao opcional
+            avaliacao (float) avaliacao de 0 a 5
+        
+        returns
+            bool true se cadastrou com sucesso false se a categoria nao existe
+        
+        complexidade Olog n para buscar a categoria mais O1 para adicionar na lista
+        """
+        # busca a categoria na arvore Olog n
+        categoria = self.arvore_categorias.find(nome_categoria)
+        
+        if categoria is None:
+            print(f"categoria {nome_categoria} nao encontrada")
+            print("dica cadastre a categoria primeiro")
+            return False
+        
+        # cria o objeto produto
+        novo_produto = Produto(produto_id, nome_produto, preco, descricao, avaliacao)
+        
+        # adiciona o produto a categoria O1
+        categoria.adicionar_produto(novo_produto)
+        
+        print(f"produto {nome_produto} adicionado a categoria {nome_categoria}")
+        return True
