@@ -236,3 +236,38 @@ class SistemaRecomendacao:
             return self._buscar_node(node.leftChild, chave)
         else:
             return self._buscar_node(node.rightChild, chave)
+    
+    def _coletar_produtos_recursivo(self, node, lista_produtos, lista_categorias):
+        """
+        recursao principal coleta produtos de um no e todos os seus descendentes
+        
+        usa travessia inordem esquerda raiz direita para coletar produtos
+        de forma organizada
+        
+        args
+            node no atual da AVL
+            lista_produtos lista acumuladora de produtos passada por referencia
+            lista_categorias lista de nomes de categorias visitadas
+        
+        recursividade esta funcao explora TODA a subarvore a partir do no dado
+        complexidade Om onde m e o numero de nos na subarvore
+        """
+        if node is None:
+            return
+        
+        # recursao processa subarvore esquerda primeiro
+        self._coletar_produtos_recursivo(node.leftChild, lista_produtos, lista_categorias)
+        
+        # processa o no atual coleta produtos desta categoria
+        categoria = node.data
+        lista_categorias.append(categoria.nome)
+        
+        # adiciona todos os produtos desta categoria a lista de recomendacoes
+        for produto in categoria.produtos:
+            lista_produtos.append({
+                'produto': produto,
+                'categoria': categoria.nome
+            })
+        
+        # recursao processa subarvore direita
+        self._coletar_produtos_recursivo(node.rightChild, lista_produtos, lista_categorias)
