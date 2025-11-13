@@ -81,3 +81,43 @@ class SistemaRecomendacao:
         
         print(f"produto {nome_produto} adicionado a categoria {nome_categoria}")
         return True
+    
+    def remover_categoria(self, nome_categoria):
+        """
+        remove uma categoria do sistema
+        
+        args
+            nome_categoria (str) nome da categoria a ser removida
+        
+        returns
+            bool true se removeu com sucesso false se nao encontrou
+        
+        complexidade Olog n
+        """
+        categoria = self.arvore_categorias.find(nome_categoria)
+        
+        if categoria is None:
+            print(f"categoria {nome_categoria} nao encontrada")
+            return False
+        
+        # aviso se a categoria tem produtos
+        if len(categoria.produtos) > 0:
+            print(f"atencao a categoria tem {len(categoria.produtos)} produtos")
+        
+        self.arvore_categorias.delete(nome_categoria)
+        print(f"categoria {nome_categoria} removida com sucesso")
+        return True
+    
+    def buscar_categoria(self, nome_categoria):
+        """
+        busca uma categoria pelo nome
+        
+        args
+            nome_categoria (str) nome da categoria
+        
+        returns
+            categoria objeto categoria se encontrado none caso contrario
+        
+        complexidade Olog n
+        """
+        return self.arvore_categorias.find(nome_categoria)
