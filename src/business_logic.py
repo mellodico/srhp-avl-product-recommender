@@ -271,3 +271,104 @@ class SistemaRecomendacao:
         
         # recursao processa subarvore direita
         self._coletar_produtos_recursivo(node.rightChild, lista_produtos, lista_categorias)
+    
+    def recomendar_produtos(self, nome_categoria, ordenar_por="avaliacao", limite=None):
+        """
+        recomenda produtos de uma categoria e todas as suas subcategorias
+        
+        esta e a funcionalidade CORE do sistema de recomendacao
+        usa travessia recursiva para coletar produtos de toda a subarvore
+        
+        args
+            nome_categoria (str) nome da categoria raiz
+            ordenar_por (str) avaliacao preco_asc preco_desc nome
+            limite (int) numero maximo de produtos a retornar None para todos
+        
+        returns
+            list lista de produtos recomendados
+        
+        complexidade Olog n para buscar mais Om para percorrer m nos da subarvore
+        """
+        # busca a categoria na arvore Olog n
+        node = self._buscar_node(self.arvore_categorias.root, nome_categoria)
+        
+        if node is None:
+            print(f"categoria {nome_categoria} nao encontrada")
+            return []
+        
+        print(f"\nRECOMENDACOES baseadas em {nome_categoria}")
+        print(f"incluindo produtos de subcategorias\n")
+        
+        # coleta produtos recursivamente de toda a subarvore
+        produtos_recomendados = []
+        categorias_visitadas = []
+        
+        self._coletar_produtos_recursivo(node, produtos_recomendados, categorias_visitadas)
+        
+        # mostra estatisticas
+        print(f"Estatisticas da busca")
+        print(f"categorias visitadas {len(categorias_visitadas)}")
+        print(f"produtos encontrados {len(produtos_recomendados)}")
+        print(f"categorias {', '.join(categorias_visitadas)}\n")
+        
+        if len(produtos_recomendados) == 0:
+            print("nenhum produto encontrado nesta categoria ou subcategorias")
+            return []
+        
+        # ordena os produtos
+        produtos_ordenados = self._ordenar_produtos(produtos_recomendados, ordenar_por)
+        
+        # aplica limite se especificado
+        if limite:
+            produtos_ordenados = produtos_ordenados[:limite]
+        
+        # exibe os produtos
+        self._exibir_recomendacoes(produtos_ordenados, ordenar_por)
+        
+        return produtos_ordenados
+    
+    def _ordenar_produtos(self, produtos_com_categoria, criterio):
+        """
+        ordena a lista de produtos conforme o criterio especificado
+        
+        args
+            produtos_com_categoria lista de dicts produto Produto categoria str
+            criterio avaliacao preco_asc preco_desc nome
+        
+        returns
+            list lista ordenada
+        """
+        if criterio == "avaliacao":
+            return sorted(produtos_com_categoria, 
+                         key=lambda x: x['produto'].avaliacao, 
+                         reverse=True)
+        elif criterio == "preco_asc":
+            return sorted(produtos_com_categoria, 
+                         key=lambda x: x['produto'].preco)
+        elif criterio == "preco_desc":
+            return sorted(produtos_com_categoria, 
+                         key=lambda x: x['produto'].preco, 
+                         reverse=True)
+        elif criterio == "nome":
+            return sorted(produtos_com_categoria, 
+                         key=lambda x: x['produto'].nome)
+        else:
+            return produtos_com_categoria
+    
+    def _exibir_recomendacoes(self, produtos_ordenados, criterio):
+        """exibe os produtos recomendados de forma formatada"""
+        print(f"TOP RECOMENDACOES ordenado por {criterio}")
+        print("-" * 70)
+        
+        for i, item in enumerate(produtos_ordenados, 1):
+            produto = item['produto']
+            categoria = item['categoria']
+            
+            print(f"{i}. {produto.nome} ID {produto.id}")
+            print(f"   Categoria {categoria}")
+            print(f"   Preco R$ {produto.preco:.2f} | Avaliacao {int(produto.avaliacao)} estrelas ({produto.avaliacao:.1f}/5.0)")
+            
+            if produto.descricao:
+                print(f"   {produto.descricao}")
+            
+            print()
