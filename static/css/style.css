@@ -1,0 +1,102 @@
+/* reset e estilos globais */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: white;
+    overflow: hidden;
+}
+
+/* container principal */
+.container {
+    width: 1440px;
+    height: 1024px;
+    position: relative;
+    background: white;
+    margin: 0 auto;
+}
+
+/* titulo principal ola */
+.main-title {
+    position: absolute;
+    left: 637px;
+    top: 454px;
+    color: #2B2B2B;
+    font-size: 96px;
+    font-weight: 500;
+}
+
+/* menu de navegacao inferior */
+.navigation-menu {
+    position: absolute;
+    left: 491px;
+    top: 836px;
+    width: 458px;
+    height: 68px;
+    background: #E9E9E9;
+    border-radius: 30px;
+    padding: 4px 3px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* item do menu */
+.menu-item {
+    width: 150px;
+    height: 60px;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.menu-item span {
+    color: #9D9D9D;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+/* hover effect */
+.menu-item:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.menu-item:hover span {
+    color: #6B6B6B;
+}
+
+/* item ativo */
+.menu-item.active {
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.menu-item.active span {
+    color: #2B2B2B;
+}
+
+/* responsividade */
+@media (max-width: 1440px) {
+    .container {
+        width: 100vw;
+        height: 100vh;
+    }
+    
+    .main-title {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    
+    .navigation-menu {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+}
