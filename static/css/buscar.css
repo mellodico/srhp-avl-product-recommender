@@ -1,0 +1,215 @@
+/* pagina de busca */
+.search-page {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end; /* alinhar tudo para baixo */
+    padding: 40px;
+    padding-bottom: 195px; 
+    box-sizing: border-box;
+}
+
+/* campo de busca */
+.search-input-container {
+    width: 100%;
+    max-width: 600px;
+    margin-bottom: 10px; /* apenas 10px de distancia */
+    position: relative; /* necessario para o position absolute do dropdown */
+    z-index: 10;
+}
+
+.search-button {
+    width: 100%;
+    padding: 20px 30px;
+    font-size: 16px;
+    border: none;
+    border-radius: 30px;
+    background: #E8E8E8;
+    color: #999;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.3s;
+    cursor: pointer;
+    user-select: none;
+}
+
+.search-button:hover {
+    background: #DDD;
+}
+
+.search-button.active {
+    background: #DDD;
+}
+
+/* container de resultados */
+.search-results {
+    width: 100%;
+    background: #E8E8E8;
+    border-radius: 30px;
+    padding: 20px;
+    max-height: 400px;
+    overflow-y: auto;
+    position: fixed;
+    bottom: 275px; /* mais proximo do botao */
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 600px;
+    z-index: 100;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* lista de categorias */
+.category-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.category-item {
+    padding: 15px 20px;
+    margin: 5px 0;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+    color: #333;
+    font-size: 15px;
+}
+
+.category-item:hover {
+    background: #9ACD32;
+    color: #000;
+}
+
+.category-item.selected {
+    background: #9ACD32;
+    color: #000;
+}
+
+/* resultados de produtos */
+.products-container {
+    width: 100%;
+    max-width: 800px;
+    position: absolute;
+    top: 100px; /* posicionar no topo */
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.products-header {
+    font-size: 2em;
+    font-weight: 600;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #333;
+}
+
+.product-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.product-item {
+    padding: 20px;
+    margin: 10px 0;
+    background: #F5F5F5;
+    border-radius: 10px;
+    transition: all 0.3s;
+}
+
+.product-item:hover {
+    background: #EEE;
+    transform: translateX(5px);
+}
+
+.product-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.product-name {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #333;
+}
+
+.product-price {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #333;
+}
+
+.product-breadcrumb {
+    font-size: 0.85em;
+    color: #999;
+}
+
+.breadcrumb-label {
+    font-size: 0.9em;
+    color: #BBB;
+    margin-bottom: 3px;
+}
+
+.breadcrumb-path {
+    color: #666;
+}
+
+.breadcrumb-arrow {
+    margin: 0 8px;
+    color: #999;
+}
+
+/* estado vazio */
+.empty-state {
+    text-align: center;
+    padding: 40px;
+    color: #999;
+}
+
+.empty-state-icon {
+    font-size: 3em;
+    margin-bottom: 15px;
+}
+
+/* scrollbar customizada */
+.search-results::-webkit-scrollbar {
+    width: 8px;
+}
+
+.search-results::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.search-results::-webkit-scrollbar-thumb {
+    background: #CCC;
+    border-radius: 10px;
+}
+
+.search-results::-webkit-scrollbar-thumb:hover {
+    background: #AAA;
+}
+
+/* animacoes */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.product-item {
+    animation: fadeInUp 0.3s ease-out;
+}
+
+.product-item:nth-child(1) { animation-delay: 0.1s; }
+.product-item:nth-child(2) { animation-delay: 0.2s; }
+.product-item:nth-child(3) { animation-delay: 0.3s; }
+.product-item:nth-child(4) { animation-delay: 0.4s; }
+.product-item:nth-child(5) { animation-delay: 0.5s; }
