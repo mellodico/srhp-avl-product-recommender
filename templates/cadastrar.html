@@ -7,7 +7,24 @@
 {% endblock %}
 
 {% block content %}
+<h1 class="page-title">cadastrar</h1>
+
 <div class="cadastro-page">
+    <!-- botao ver lista -->
+    <div class="ver-lista-wrapper">
+        <button id="verListaBtn" class="ver-lista-btn">ver lista</button>
+        
+        <!-- opcoes expandidas -->
+        <div id="listaOptions" class="lista-options" style="display: none;">
+            <button class="lista-option-btn categoria-btn" data-list="categorias">
+                categorias
+            </button>
+            <button class="lista-option-btn produtos-btn" data-list="produtos">
+                produtos
+            </button>
+        </div>
+    </div>
+    
     <!-- lista de cadastrados -->
     <div id="cadastradosContainer" class="cadastrados-container" style="display: none;">
         <!-- lista sera inserida aqui -->

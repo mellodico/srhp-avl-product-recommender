@@ -1,23 +1,21 @@
 {% extends "base.html" %}
 
-{% block title %}Arvore - SRHP{% endblock %}
+{% block title %}Árvore - SRHP{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="/static/css/arvore.css">
+<link rel="stylesheet" href="{{ url_for('static', path='/css/arvore.css') }}">
 {% endblock %}
 
 {% block content %}
-<div class="page-title">árvore</div>
+<h1 class="page-title">árvore</h1>
 
-<button class="populate-btn" id="populateBtn" title="adicionar dados de exemplo">
-    + dados exemplo
-</button>
-
-<div class="tree-container" id="treeContainer">
-    <!-- arvore sera renderizada aqui via javascript -->
+<div class="tree-page">
+    <div class="tree-scroll-container">
+        <div id="treeContainer" class="tree-container"></div>
+    </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<script src="/static/js/arvore.js"></script>
+<script src="{{ url_for('static', path='/js/arvore.js') }}"></script>
 {% endblock %}
