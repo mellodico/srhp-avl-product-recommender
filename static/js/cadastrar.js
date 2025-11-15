@@ -4,29 +4,37 @@ class CadastroPage {
     constructor() {
         this.formContainer = document.getElementById('formContainer');
         this.cadastradosContainer = document.getElementById('cadastradosContainer');
-        this.categorias = [
-            { id: 1, nome: 'Eletronicos', pai: null },
-            { id: 2, nome: 'Alimentos', pai: null },
-            { id: 3, nome: 'Roupas', pai: null },
-            { id: 4, nome: 'Livros', pai: null },
-            { id: 5, nome: 'Esportes', pai: null },
-            { id: 6, nome: 'Celulares', pai: 'Eletronicos' },
-            { id: 7, nome: 'Computadores', pai: 'Eletronicos' },
-            { id: 8, nome: 'Graos', pai: 'Alimentos' }
-        ];
-        
-        this.produtos = [
-            { id: 1, nome: 'Smartphone Galaxy', categoria: 'Eletronicos', preco: 2499.00, descricao: 'Celular top de linha com camera de 108MP' },
-            { id: 2, nome: 'Notebook Dell', categoria: 'Eletronicos', preco: 3999.00, descricao: 'Notebook potente para trabalho e jogos' },
-            { id: 3, nome: 'Arroz Integral 1kg', categoria: 'Alimentos', preco: 12.90, descricao: 'Arroz integral organico' },
-            { id: 4, nome: 'Camiseta Basica', categoria: 'Roupas', preco: 49.90, descricao: 'Camiseta 100% algodao' },
-            { id: 5, nome: 'Python Avancado', categoria: 'Livros', preco: 89.90, descricao: 'Livro completo sobre Python' },
-            { id: 6, nome: 'iPhone 15 Pro', categoria: 'Eletronicos', preco: 7999.00, descricao: 'Ultimo lancamento da Apple' },
-            { id: 7, nome: 'Mouse Gamer', categoria: 'Eletronicos', preco: 299.00, descricao: 'Mouse com RGB e 16000 DPI' },
-            { id: 8, nome: 'Teclado Mecanico', categoria: 'Eletronicos', preco: 599.00, descricao: 'Teclado mecanico switches azuis' }
-        ];
+        this.categorias = [];
+        this.produtos = [];
         
         this.init();
+        this.carregarDados();
+    }
+    
+    async carregarDados() {
+        // carregar categorias e produtos do backend
+        await this.carregarCategorias();
+        await this.carregarProdutos();
+    }
+    
+    async carregarCategorias() {
+        try {
+            const response = await fetch('/api/categorias');
+            this.categorias = await response.json();
+        } catch (error) {
+            console.error('erro ao carregar categorias:', error);
+            this.categorias = [];
+        }
+    }
+    
+    async carregarProdutos() {
+        try {
+            const response = await fetch('/api/produtos');
+            this.produtos = await response.json();
+        } catch (error) {
+            console.error('erro ao carregar produtos:', error);
+            this.produtos = [];
+        }
     }
     
     init() {
@@ -35,8 +43,44 @@ class CadastroPage {
         this.produtoBtn = document.querySelector('.tab-button.produto');
         this.tabsContainer = document.querySelector('.tabs-container');
         
-        this.categoriaBtn.addEventListener('click', () => this.showCategoriaForm());
-        this.produtoBtn.addEventListener('click', () => this.showProdutoForm());
+        if (this.categoriaBtn && this.produtoBtn) {
+            this.categoriaBtn.addEventListener('click', () => this.showCategoriaForm());
+            this.produtoBtn.addEventListener('click', () => this.showProdutoForm());
+        }
+        
+        // eventos do ver lista
+        this.verListaBtn = document.getElementById('verListaBtn');
+        this.listaOptions = document.getElementById('listaOptions');
+        
+        if (this.verListaBtn && this.listaOptions) {
+            this.verListaBtn.addEventListener('click', () => this.toggleListaOptions());
+            
+            // eventos dos botoes de opcao
+            const listaBtns = document.querySelectorAll('.lista-option-btn');
+            listaBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const listType = btn.getAttribute('data-list');
+                    if (listType === 'categorias') {
+                    this.mostrarCategorias();
+                } else if (listType === 'produtos') {
+                    this.mostrarProdutos();
+                }
+                // fechar o dropdown
+                this.listaOptions.style.display = 'none';
+                this.verListaBtn.classList.remove('active');
+                });
+            });
+        }
+    }
+    
+    toggleListaOptions() {
+        if (this.listaOptions.style.display === 'none') {
+            this.listaOptions.style.display = 'flex';
+            this.verListaBtn.classList.add('active');
+        } else {
+            this.listaOptions.style.display = 'none';
+            this.verListaBtn.classList.remove('active');
+        }
     }
     
     showCategoriaForm() {
@@ -58,7 +102,7 @@ class CadastroPage {
                 <label class="form-label">categoria pai (opcional)</label>
                 <select class="form-select" id="categoriaPai">
                     <option value="">Selecione</option>
-                    ${this.categorias.map(cat => `<option value="${cat.nome}">${cat.nome}</option>`).join('')}
+                    ${this.categorias.map(cat => `<option value="${cat.id}">${cat.nome}</option>`).join('')}
                 </select>
             </div>
             
@@ -79,7 +123,7 @@ class CadastroPage {
             </div>
             
             <div class="form-field">
-                <label class="form-label">nome da categoria*</label>
+                <label class="form-label">nome do produto*</label>
                 <input type="text" class="form-input" id="produtoNome" placeholder="">
             </div>
             
@@ -87,7 +131,7 @@ class CadastroPage {
                 <label class="form-label">categoria*</label>
                 <select class="form-select" id="produtoCategoria">
                     <option value="">Selecione</option>
-                    ${this.categorias.map(cat => `<option value="${cat.nome}">${cat.nome}</option>`).join('')}
+                    ${this.categorias.map(cat => `<option value="${cat.id}">${cat.nome}</option>`).join('')}
                 </select>
             </div>
             
@@ -107,62 +151,112 @@ class CadastroPage {
         this.formContainer.style.display = 'block';
     }
     
-    cadastrarCategoria() {
+    async cadastrarCategoria() {
         const nome = document.getElementById('categoriaNome').value.trim();
-        const categoriaPai = document.getElementById('categoriaPai').value;
+        const categoriaPaiIdStr = document.getElementById('categoriaPai').value;
         
         if (!nome) {
-            alert('Por favor, preencha o nome da categoria');
+            alert('por favor, preencha o nome da categoria');
             return;
         }
         
-        console.log('cadastrando categoria:', { nome, categoriaPai });
+        // validar categoria_pai_id se fornecida
+        let categoriaPaiId = null;
+        if (categoriaPaiIdStr) {
+            categoriaPaiId = parseInt(categoriaPaiIdStr);
+            if (isNaN(categoriaPaiId) || categoriaPaiId <= 0) {
+                alert('por favor, selecione uma categoria pai valida');
+                return;
+            }
+        }
         
-        // adicionar na lista
-        const novaCategoria = {
-            id: this.categorias.length + 1,
-            nome: nome,
-            pai: categoriaPai || null
-        };
-        this.categorias.push(novaCategoria);
-        
-        alert('Categoria cadastrada com sucesso!');
-        
-        // limpar formulario
-        document.getElementById('categoriaNome').value = '';
-        document.getElementById('categoriaPai').value = '';
+        try {
+            const response = await fetch('/api/categorias', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    nome: nome,
+                    descricao: '',
+                    categoria_pai_id: categoriaPaiId
+                })
+            });
+            
+            if (response.ok) {
+                alert('categoria cadastrada com sucesso!');
+                // recarregar categorias
+                await this.carregarCategorias();
+                // limpar formulario
+                document.getElementById('categoriaNome').value = '';
+                document.getElementById('categoriaPai').value = '';
+            } else {
+                const error = await response.json();
+                alert('erro ao cadastrar categoria: ' + error.detail);
+            }
+        } catch (error) {
+            console.error('erro:', error);
+            alert('erro ao cadastrar categoria');
+        }
     }
     
-    cadastrarProduto() {
+    async cadastrarProduto() {
         const nome = document.getElementById('produtoNome').value.trim();
-        const categoria = document.getElementById('produtoCategoria').value;
+        const categoriaIdStr = document.getElementById('produtoCategoria').value;
         const preco = document.getElementById('produtoPreco').value.trim();
         const descricao = document.getElementById('produtoDescricao').value.trim();
         
-        if (!nome || !categoria || !preco) {
-            alert('Por favor, preencha todos os campos obrigatórios');
+        if (!nome || !categoriaIdStr || !preco) {
+            alert('por favor, preencha todos os campos obrigatorios');
             return;
         }
         
-        console.log('cadastrando produto:', { nome, categoria, preco, descricao });
+        // validar e converter categoria_id
+        const categoriaId = parseInt(categoriaIdStr);
+        if (isNaN(categoriaId) || categoriaId <= 0) {
+            alert('por favor, selecione uma categoria valida');
+            return;
+        }
         
-        // adicionar na lista
-        const novoProduto = {
-            id: this.produtos.length + 1,
-            nome: nome,
-            categoria: categoria,
-            preco: parseFloat(preco),
-            descricao: descricao || ''
-        };
-        this.produtos.push(novoProduto);
+        // validar preco
+        const precoNum = parseFloat(preco);
+        if (isNaN(precoNum) || precoNum <= 0) {
+            alert('por favor, insira um preco valido maior que zero');
+            return;
+        }
         
-        alert('Produto cadastrado com sucesso!');
-        
-        // limpar formulario
-        document.getElementById('produtoNome').value = '';
-        document.getElementById('produtoCategoria').value = '';
-        document.getElementById('produtoPreco').value = '';
-        document.getElementById('produtoDescricao').value = '';
+        try {
+            const response = await fetch('/api/produtos', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    nome: nome,
+                    categoria_id: categoriaId,
+                    preco: precoNum,
+                    descricao: descricao,
+                    avaliacao: 0.0
+                })
+            });
+            
+            if (response.ok) {
+                alert('produto cadastrado com sucesso!');
+                // recarregar produtos
+                await this.carregarProdutos();
+                // limpar formulario
+                document.getElementById('produtoNome').value = '';
+                document.getElementById('produtoCategoria').value = '';
+                document.getElementById('produtoPreco').value = '';
+                document.getElementById('produtoDescricao').value = '';
+            } else {
+                const error = await response.json();
+                alert('erro ao cadastrar produto: ' + error.detail);
+            }
+        } catch (error) {
+            console.error('erro:', error);
+            alert('erro ao cadastrar produto');
+        }
     }
     
     showCategoriaForm() {
@@ -184,7 +278,7 @@ class CadastroPage {
                 <label class="form-label">categoria pai (opcional)</label>
                 <select class="form-select" id="categoriaPai">
                     <option value="">Selecione</option>
-                    ${this.categorias.map(cat => `<option value="${cat.nome}">${cat.nome}</option>`).join('')}
+                    ${this.categorias.map(cat => `<option value="${cat.id}">${cat.nome}</option>`).join('')}
                 </select>
             </div>
             
@@ -205,7 +299,7 @@ class CadastroPage {
             </div>
             
             <div class="form-field">
-                <label class="form-label">nome da categoria*</label>
+                <label class="form-label">nome do produto*</label>
                 <input type="text" class="form-input" id="produtoNome" placeholder="">
             </div>
             
@@ -213,7 +307,7 @@ class CadastroPage {
                 <label class="form-label">categoria*</label>
                 <select class="form-select" id="produtoCategoria">
                     <option value="">Selecione</option>
-                    ${this.categorias.map(cat => `<option value="${cat.nome}">${cat.nome}</option>`).join('')}
+                    ${this.categorias.map(cat => `<option value="${cat.id}">${cat.nome}</option>`).join('')}
                 </select>
             </div>
             
@@ -235,20 +329,38 @@ class CadastroPage {
     
     mostrarCategorias() {
         this.tabsContainer.classList.add('hidden');
+        this.formContainer.style.display = 'none';
         
         this.cadastradosContainer.innerHTML = `
-            <div class="cadastrados-header">Categorias</div>
+            <div class="cadastrados-header">categorias</div>
             <ul class="cadastrados-list">
-                ${this.categorias.map(cat => `
-                    <li class="cadastrado-item">
-                        <div class="cadastrado-header">
-                            <span class="cadastrado-nome">${cat.nome}</span>
-                        </div>
-                        <div class="cadastrado-info">
-                            ${cat.pai ? `Categoria pai: ${cat.pai}` : 'Categoria raiz'}
-                        </div>
-                    </li>
-                `).join('')}
+                ${this.categorias.map((cat, index) => {
+                    // construir a hierarquia
+                    let hierarchyInfo = '';
+                    if (cat.categoria_pai_nome) {
+                        hierarchyInfo = `<div class="cadastrado-info">categoria pai: ${cat.categoria_pai_nome}</div>`;
+                    }
+                    
+                    return `
+                        <li class="cadastrado-item" data-id="${cat.id}" data-type="categoria">
+                            <div class="cadastrado-header">
+                                <div class="cadastrado-label">${cat.nome}</div>
+                                <div class="menu-dots-wrapper">
+                                    <button class="menu-dots-btn" onclick="cadastroPage.toggleMenu(event, ${cat.id}, 'categoria')">
+                                        <div class="dot"></div>
+                                        <div class="dot"></div>
+                                        <div class="dot"></div>
+                                    </button>
+                                    <div class="menu-actions" id="menu-${cat.id}">
+                                        <button class="menu-action-btn editar" onclick="cadastroPage.editarItem(${cat.id}, 'categoria')">editar</button>
+                                        <button class="menu-action-btn apagar" onclick="cadastroPage.apagarItem(${cat.id}, 'categoria')">apagar</button>
+                                    </div>
+                                </div>
+                            </div>
+                            ${hierarchyInfo}
+                        </li>
+                    `;
+                }).join('')}
             </ul>
         `;
         
@@ -257,26 +369,114 @@ class CadastroPage {
     
     mostrarProdutos() {
         this.tabsContainer.classList.add('hidden');
+        this.formContainer.style.display = 'none';
         
         this.cadastradosContainer.innerHTML = `
-            <div class="cadastrados-header">Produtos</div>
+            <div class="cadastrados-header">produtos</div>
             <ul class="cadastrados-list">
-                ${this.produtos.map(prod => `
-                    <li class="cadastrado-item">
+                ${this.produtos.map((prod, index) => `
+                    <li class="cadastrado-item" data-id="${prod.id}" data-type="produto">
                         <div class="cadastrado-header">
-                            <span class="cadastrado-nome">${prod.nome}</span>
-                            <span class="cadastrado-nome">R$ ${prod.preco.toFixed(2).replace('.', ',')}</span>
+                            <div class="cadastrado-label">${prod.nome}</div>
+                            <div class="menu-dots-wrapper">
+                                <button class="menu-dots-btn" onclick="cadastroPage.toggleMenu(event, ${prod.id}, 'produto')">
+                                    <div class="dot"></div>
+                                    <div class="dot"></div>
+                                    <div class="dot"></div>
+                                </button>
+                                <div class="menu-actions" id="menu-prod-${prod.id}">
+                                    <button class="menu-action-btn editar" onclick="cadastroPage.editarItem(${prod.id}, 'produto')">editar</button>
+                                    <button class="menu-action-btn apagar" onclick="cadastroPage.apagarItem(${prod.id}, 'produto')">apagar</button>
+                                </div>
+                            </div>
                         </div>
-                        <div class="cadastrado-info">
-                            Categoria: ${prod.categoria}
-                        </div>
-                        ${prod.descricao ? `<div class="cadastrado-info">${prod.descricao}</div>` : ''}
+                        <div class="cadastrado-info">categoria: ${prod.categoria_nome}</div>
+                        <div class="cadastrado-info">${prod.descricao}</div>
+                        <div class="cadastrado-info" style="font-weight: 600;">R$ ${prod.preco.toFixed(2).replace('.', ',')}</div>
                     </li>
                 `).join('')}
             </ul>
         `;
         
         this.cadastradosContainer.style.display = 'block';
+    }
+    
+    toggleMenu(event, id, type) {
+        event.stopPropagation();
+        
+        // fechar todos os menus abertos
+        document.querySelectorAll('.menu-actions').forEach(menu => {
+            menu.classList.remove('show');
+        });
+        
+        // abrir o menu clicado
+        const menuId = type === 'categoria' ? `menu-${id}` : `menu-prod-${id}`;
+        const menu = document.getElementById(menuId);
+        if (menu) {
+            menu.classList.add('show');
+        }
+        
+        // fechar o menu ao clicar fora
+        const closeMenus = (e) => {
+            if (!e.target.closest('.menu-dots-wrapper')) {
+                document.querySelectorAll('.menu-actions').forEach(m => {
+                    m.classList.remove('show');
+                });
+                document.removeEventListener('click', closeMenus);
+            }
+        };
+        setTimeout(() => {
+            document.addEventListener('click', closeMenus);
+        }, 0);
+    }
+    
+    editarItem(id, type) {
+        console.log(`editar ${type} id: ${id}`);
+        // fechar o menu
+        document.querySelectorAll('.menu-actions').forEach(menu => {
+            menu.classList.remove('show');
+        });
+        
+        // implementar edicao futuramente
+        alert(`funcionalidade de edicao sera implementada em breve para ${type} #${id}`);
+    }
+    
+    async apagarItem(id, type) {
+        console.log(`apagar ${type} id: ${id}`);
+        
+        // fechar o menu
+        document.querySelectorAll('.menu-actions').forEach(menu => {
+            menu.classList.remove('show');
+        });
+        
+        if (!confirm(`tem certeza que deseja apagar este ${type}?`)) {
+            return;
+        }
+        
+        try {
+            const endpoint = type === 'categoria' ? `/api/categorias/${id}` : `/api/produtos/${id}`;
+            const response = await fetch(endpoint, {
+                method: 'DELETE'
+            });
+            
+            if (response.ok) {
+                alert(`${type} apagado com sucesso!`);
+                // recarregar dados
+                if (type === 'categoria') {
+                    await this.carregarCategorias();
+                    this.mostrarCategorias();
+                } else {
+                    await this.carregarProdutos();
+                    this.mostrarProdutos();
+                }
+            } else {
+                const error = await response.json();
+                alert('erro ao apagar: ' + error.detail);
+            }
+        } catch (error) {
+            console.error('erro:', error);
+            alert('erro ao apagar ' + type);
+        }
     }
 }
 

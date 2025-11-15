@@ -7,53 +7,37 @@ class SearchPage {
         this.productsContainer = document.getElementById('productsContainer');
         this.selectedCategory = null;
         
-        this.categories = [
-            { id: 1, nome: 'Eletronicos', produtos: 2 },
-            { id: 2, nome: 'Alimentos', produtos: 1 },
-            { id: 3, nome: 'Roupas', produtos: 1 },
-            { id: 4, nome: 'Livros', produtos: 1 },
-            { id: 5, nome: 'Esportes', produtos: 0 }
-        ];
-        
-        this.produtos = [
-            {
-                id: 1,
-                nome: 'Smartphone Galaxy',
-                preco: 2499.00,
-                categoria: 'Eletronicos',
-                breadcrumb: ['Eletronicos', 'Celulares', 'Smartphones']
-            },
-            {
-                id: 2,
-                nome: 'Notebook Dell',
-                preco: 3999.00,
-                categoria: 'Eletronicos',
-                breadcrumb: ['Eletronicos', 'Computadores', 'Notebooks']
-            },
-            {
-                id: 3,
-                nome: 'Arroz Integral 1kg',
-                preco: 12.90,
-                categoria: 'Alimentos',
-                breadcrumb: ['Alimentos', 'Graos', 'Arroz']
-            },
-            {
-                id: 4,
-                nome: 'Camiseta Basica',
-                preco: 49.90,
-                categoria: 'Roupas',
-                breadcrumb: ['Roupas', 'Masculino', 'Camisetas']
-            },
-            {
-                id: 5,
-                nome: 'Python Avancado',
-                preco: 89.90,
-                categoria: 'Livros',
-                breadcrumb: ['Livros', 'Tecnologia', 'Programacao']
-            }
-        ];
+        this.categories = [];
+        this.produtos = [];
         
         this.init();
+        this.carregarDados();
+    }
+    
+    async carregarDados() {
+        // carregar categorias e produtos do backend
+        await this.carregarCategorias();
+        await this.carregarProdutos();
+    }
+    
+    async carregarCategorias() {
+        try {
+            const response = await fetch('/api/categorias');
+            this.categories = await response.json();
+        } catch (error) {
+            console.error('erro ao carregar categorias:', error);
+            this.categories = [];
+        }
+    }
+    
+    async carregarProdutos() {
+        try {
+            const response = await fetch('/api/produtos');
+            this.produtos = await response.json();
+        } catch (error) {
+            console.error('erro ao carregar produtos:', error);
+            this.produtos = [];
+        }
     }
     
     init() {
@@ -124,11 +108,15 @@ class SearchPage {
         });
     }
     
-    selectCategory(categoryName) {
+    async selectCategory(categoryName) {
+        // encontrar a categoria pelo nome
+        const categoria = this.categories.find(c => c.nome === categoryName);
+        if (!categoria) return;
+        
         this.selectedCategory = categoryName;
         this.searchButton.textContent = categoryName;
         this.hideResults();
-        this.showProductsByCategory(categoryName);
+        await this.showProductsByCategory(categoria.id, categoryName);
         
         // esconder o botao de busca apos selecionar
         this.searchButton.style.display = 'none';
@@ -140,22 +128,29 @@ class SearchPage {
         this.hideProducts();
     }
     
-    showProductsByCategory(categoryName) {
-        const products = this.produtos.filter(p => p.categoria === categoryName);
-        
-        if (products.length === 0) {
+    async showProductsByCategory(categoriaId, categoryName) {
+        try {
+            // buscar produtos dessa categoria
+            const response = await fetch(`/api/produtos/categoria/${categoriaId}`);
+            const products = await response.json();
+            
+            if (products.length === 0) {
+                this.showEmptyState();
+                return;
+            }
+            
+            this.productsContainer.innerHTML = `
+                <div class="products-header">${categoryName}</div>
+                <ul class="product-list">
+                    ${products.map(product => this.renderProduct(product)).join('')}
+                </ul>
+            `;
+            
+            this.productsContainer.style.display = 'block';
+        } catch (error) {
+            console.error('erro ao carregar produtos:', error);
             this.showEmptyState();
-            return;
         }
-        
-        this.productsContainer.innerHTML = `
-            <div class="products-header">${categoryName}</div>
-            <ul class="product-list">
-                ${products.map(product => this.renderProduct(product)).join('')}
-            </ul>
-        `;
-        
-        this.productsContainer.style.display = 'block';
     }
     
     searchProducts(query) {
@@ -186,11 +181,12 @@ class SearchPage {
                     <div class="product-price">R$ ${product.preco.toFixed(2).replace('.', ',')}</div>
                 </div>
                 <div class="product-breadcrumb">
-                    <div class="breadcrumb-label">subcategoria</div>
+                    <div class="breadcrumb-label">categoria</div>
                     <div class="breadcrumb-path">
-                        ${product.breadcrumb.join(' <span class="breadcrumb-arrow">→</span> ')}
+                        ${product.categoria_nome}
                     </div>
                 </div>
+                ${product.descricao ? `<div class="product-description">${product.descricao}</div>` : ''}
             </li>
         `;
     }

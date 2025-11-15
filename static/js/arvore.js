@@ -1,267 +1,233 @@
-// visualizacao interativa da arvore avl
+// visualizador de arvore avl com javascript puro
 
 class TreeVisualizer {
     constructor() {
-        this.container = document.getElementById('treeContainer');
-        this.treeData = null;
         this.expandedNodes = new Set();
-        this.nodeElements = new Map();
-        this.init();
+        this.levelColors = ['#9F4444', '#8B6B61', '#C89B9B', '#7B9ACF'];
+        this.tree = null;
+        
+        this.carregarArvore();
     }
     
-    async init() {
-        this.loadTreeData();
-        this.render();
-    }
-    
-    loadTreeData() {
-        // dados estaticos de exemplo
-        this.treeData = {
-            root: {
-                key: "Eletronicos",
-                height: 3,
-                data: {
-                    nome: "Eletronicos",
-                    descricao: "dispositivos eletronicos",
-                    produtos: [
-                        {id: 1, nome: "Smartphone", preco: 1500, avaliacao: 4.5},
-                        {id: 2, nome: "Notebook", preco: 3000, avaliacao: 4.8}
-                    ]
-                },
-                leftChild: {
-                    key: "Alimentos",
-                    height: 2,
-                    data: {
-                        nome: "Alimentos",
-                        descricao: "produtos alimenticios",
-                        produtos: [
-                            {id: 3, nome: "Cafe Premium", preco: 25, avaliacao: 4.7}
-                        ]
-                    },
-                    leftChild: null,
-                    rightChild: {
-                        key: "Esportes",
-                        height: 1,
-                        data: {
-                            nome: "Esportes",
-                            descricao: "equipamentos esportivos",
-                            produtos: [
-                                {id: 4, nome: "Tenis Running", preco: 299, avaliacao: 4.6}
-                            ]
-                        },
-                        leftChild: null,
-                        rightChild: null
-                    }
-                },
-                rightChild: {
-                    key: "Roupas",
-                    height: 2,
-                    data: {
-                        nome: "Roupas",
-                        descricao: "vestuario e acessorios",
-                        produtos: [
-                            {id: 5, nome: "Camiseta", preco: 49.90, avaliacao: 4.2}
-                        ]
-                    },
-                    leftChild: {
-                        key: "Livros",
-                        height: 1,
-                        data: {
-                            nome: "Livros",
-                            descricao: "literatura e educacao",
-                            produtos: [
-                                {id: 6, nome: "Python Avancado", preco: 89.90, avaliacao: 4.9}
-                            ]
-                        },
-                        leftChild: null,
-                        rightChild: null
-                    },
-                    rightChild: null
-                }
+    async carregarArvore() {
+        try {
+            const response = await fetch('/api/tree');
+            const treeData = await response.json();
+            
+            // converter dados da api para o formato esperado
+            if (treeData && treeData.length > 0) {
+                this.tree = this.convertTreeData(treeData);
+            } else {
+                // arvore vazia, criar no raiz
+                this.tree = {
+                    id: 'root',
+                    altura: 'altura 0',
+                    nome: 'sem categorias',
+                    iniciais: 'SC',
+                    numeroProdutos: 0,
+                    children: []
+                };
             }
+            
+            this.init();
+        } catch (error) {
+            console.error('erro ao carregar arvore:', error);
+            // criar arvore vazia em caso de erro
+            this.tree = {
+                id: 'root',
+                altura: 'altura 0',
+                nome: 'erro ao carregar',
+                iniciais: 'ER',
+                numeroProdutos: 0,
+                children: []
+            };
+            this.init();
+        }
+    }
+    
+    convertTreeData(treeData) {
+        // se tem multiplas raizes, criar um no pai artificial
+        if (treeData.length > 1) {
+            return {
+                id: 'root',
+                altura: 'altura 0',
+                nome: 'todas as categorias',
+                iniciais: 'TC',
+                numeroProdutos: treeData.reduce((sum, node) => sum + (node.produtos?.length || 0), 0),
+                children: treeData.map((node, index) => this.convertNode(node, 1))
+            };
+        } else if (treeData.length === 1) {
+            return this.convertNode(treeData[0], 0);
+        }
+        
+        return null;
+    }
+    
+    convertNode(node, level) {
+        const iniciais = node.nome.substring(0, 2).toUpperCase();
+        const numeroProdutos = node.produtos?.length || 0;
+        
+        return {
+            id: `cat-${node.id}`,
+            altura: `altura ${level}`,
+            nome: node.nome,
+            iniciais: iniciais,
+            numeroProdutos: numeroProdutos,
+            children: (node.children || []).map((child, index) => 
+                this.convertNode(child, level + 1)
+            )
         };
     }
-    
-    showEmptyState() {
-        this.container.innerHTML = `
-            <div class="empty-tree">
-                <div class="empty-tree-icon">🌳</div>
-                <div>nenhuma categoria cadastrada</div>
-                <div style="margin-top: 10px; font-size: 14px; color: #BBB;">
-                    use a pagina cadastrar para adicionar categorias
-                </div>
-            </div>
-        `;
+
+    init() {
+        this.container = document.getElementById('treeContainer');
+        this.render();
     }
-    
-    render() {
-        if (!this.treeData || !this.treeData.root) {
-            this.showEmptyState();
-            return;
-        }
-        
-        this.container.innerHTML = '';
-        this.nodeElements.clear();
-        
-        // renderizar apenas a raiz inicialmente no centro
-        this.renderNode(this.treeData.root, 0, 0, -150, 0);
-    }
-    
-    renderNode(node, level, x, y, index) {
-        if (!node) return;
-        
-        const nodeId = `node-${node.key}-${index}`;
-        
-        // criar elemento do no
-        const nodeEl = document.createElement('div');
-        nodeEl.className = `tree-node level-${level}`;
-        nodeEl.style.left = `50%`;
-        nodeEl.style.top = `50%`;
-        nodeEl.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
-        nodeEl.id = nodeId;
-        
-        const hasChildren = node.leftChild || node.rightChild;
-        const isExpanded = this.expandedNodes.has(nodeId);
-        
-        // pegar informacoes do no
-        const nodeName = node.key || node.name || 'Sem nome';
-        const nodeHeight = node.height || 0;
-        const nodeFB = node.balanceFactor || 0;
-        const productCount = node.data?.produtos?.length || 0;
-        
-        nodeEl.innerHTML = `
-            <div style="font-size: 0.7em; opacity: 0.8; margin-bottom: 5px;">altura</div>
-            <div style="font-size: 1.3em; font-weight: 600; margin-bottom: 8px;">${nodeName}</div>
-            <div style="display: flex; justify-content: space-between; font-size: 0.8em;">
-                <span>FB ${nodeFB}</span>
-                <span>${productCount} produtos</span>
-            </div>
-        `;
-        
-        // evento de clique para expandir
-        if (hasChildren) {
-            nodeEl.style.cursor = 'pointer';
-            nodeEl.addEventListener('click', (e) => {
-                e.stopPropagation();
-                console.log('Clicou no no:', nodeName, 'ID:', nodeId);
-                this.toggleNode(nodeId, node, level, x, y);
-            });
-        } else {
-            nodeEl.style.cursor = 'default';
-        }
-        
-        this.container.appendChild(nodeEl);
-        this.nodeElements.set(nodeId, {element: nodeEl, node: node, x: x, y: y, level: level});
-        
-        // animar entrada
-        setTimeout(() => {
-            nodeEl.classList.add('visible');
-        }, 50 + level * 100);
-        
-        // renderizar filhos se expandido
-        if (isExpanded) {
-            this.renderChildren(nodeId, node, level, x, y);
-        }
-    }
-    
-    renderChildren(parentId, parentNode, level, parentX, parentY) {
-        const spacing = 350; // espacamento maior para nos maiores
-        const childLevel = level + 1;
-        const childY = parentY + 250; // mais espaco vertical
-        
-        if (parentNode.leftChild) {
-            const leftX = parentX - spacing;
-            this.renderNode(parentNode.leftChild, childLevel, leftX, childY, `${parentId}-left`);
-            this.drawLine(parentX, parentY, leftX, childY);
-        }
-        
-        if (parentNode.rightChild) {
-            const rightX = parentX + spacing;
-            this.renderNode(parentNode.rightChild, childLevel, rightX, childY, `${parentId}-right`);
-            this.drawLine(parentX, parentY, rightX, childY);
-        }
-    }
-    
-    toggleNode(nodeId, node, level, x, y) {
-        const nodeElement = document.getElementById(nodeId);
-        
+
+    toggleNode(nodeId) {
         if (this.expandedNodes.has(nodeId)) {
-            // colapsar
             this.expandedNodes.delete(nodeId);
-            if (nodeElement) {
-                nodeElement.classList.remove('expanded');
-            }
-            this.removeChildren(nodeId);
         } else {
-            // expandir
             this.expandedNodes.add(nodeId);
-            if (nodeElement) {
-                nodeElement.classList.add('expanded');
-            }
-            this.renderChildren(nodeId, node, level, x, y);
         }
+        this.render();
     }
-    
-    removeChildren(parentId) {
-        // remover todos os elementos filhos
-        const toRemove = [];
+
+    createCard(node, level, stackIndex = 0) {
+        const color = this.levelColors[level] || this.levelColors[0];
+        const stackOffset = stackIndex * 4;
+        const rotationOffset = stackIndex * 2 - 4;
         
-        this.nodeElements.forEach((value, key) => {
-            if (key.startsWith(`${parentId}-`)) {
-                toRemove.push(key);
-            }
-        });
+        const card = document.createElement('div');
+        card.className = 'node-card';
+        if (!node.children || node.children.length === 0) {
+            card.className += ' no-children';
+        }
+        card.style.backgroundColor = color;
+        card.style.transform = `translateY(-${stackOffset}px) translateX(${stackOffset}px) rotate(${rotationOffset}deg)`;
+        card.style.zIndex = 10 - stackIndex;
         
-        toRemove.forEach(key => {
-            const nodeData = this.nodeElements.get(key);
-            if (nodeData && nodeData.element) {
-                nodeData.element.remove();
-            }
-            this.nodeElements.delete(key);
-        });
+        card.innerHTML = `
+            <div class="node-altura">${node.altura}</div>
+            <div class="node-nome">${node.nome}</div>
+            <div class="node-footer">
+                <span class="node-iniciais">${node.iniciais}</span>
+                <span class="node-produtos">${node.numeroProdutos} produtos</span>
+            </div>
+            ${node.children && node.children.length > 0 ? '<div class="node-indicator"></div>' : ''}
+        `;
         
-        // remover linhas conectoras
-        const lines = this.container.querySelectorAll('.tree-line');
-        lines.forEach(line => {
-            const lineParent = line.dataset.parent;
-            if (lineParent === parentId) {
-                line.remove();
+        return card;
+    }
+
+    createStackedCards(node, level) {
+        const fragment = document.createDocumentFragment();
+        const numStacks = Math.min(3, node.children.length);
+        
+        for (let i = 0; i < numStacks; i++) {
+            const child = node.children[i];
+            const stackedCard = this.createCard(child, level + 1, i + 1);
+            stackedCard.className = 'stacked-card';
+            fragment.appendChild(stackedCard);
+        }
+        
+        return fragment;
+    }
+
+    createNode(node, level) {
+        const hasChildren = node.children && node.children.length > 0;
+        const isExpanded = this.expandedNodes.has(node.id);
+        
+        const nodeDiv = document.createElement('div');
+        nodeDiv.className = 'tree-node';
+        
+        // wrapper do card
+        const cardWrapper = document.createElement('div');
+        cardWrapper.className = 'node-card-wrapper';
+        
+        // cards empilhados quando nao expandido
+        if (hasChildren && !isExpanded) {
+            cardWrapper.appendChild(this.createStackedCards(node, level));
+        }
+        
+        // card principal
+        const mainCard = this.createCard(node, level);
+        if (hasChildren) {
+            mainCard.addEventListener('click', () => this.toggleNode(node.id));
+        }
+        cardWrapper.appendChild(mainCard);
+        
+        nodeDiv.appendChild(cardWrapper);
+        
+        // filhos expandidos
+        if (hasChildren && isExpanded) {
+            const childrenContainer = document.createElement('div');
+            childrenContainer.className = 'children-container';
+            
+            // criar svg para as linhas
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('class', 'tree-svg');
+            
+            // adicionar filhos
+            node.children.forEach((child, index) => {
+                const childNode = this.createNode(child, level + 1);
+                childrenContainer.appendChild(childNode);
+            });
+            
+            nodeDiv.appendChild(childrenContainer);
+            
+            // calcular e desenhar linhas apos renderizacao
+            setTimeout(() => {
+                this.drawLines(cardWrapper, childrenContainer, svg);
+                childrenContainer.insertBefore(svg, childrenContainer.firstChild);
+            }, 50);
+        }
+        
+        return nodeDiv;
+    }
+
+    drawLines(parentWrapper, childrenContainer, svg) {
+        const parentRect = parentWrapper.getBoundingClientRect();
+        const containerRect = childrenContainer.getBoundingClientRect();
+        
+        // ponto de partida centro inferior do card pai
+        const parentX = parentRect.left - containerRect.left + parentRect.width / 2;
+        const parentY = parentRect.bottom - containerRect.top;
+        
+        // desenhar linha para cada filho
+        const children = childrenContainer.querySelectorAll(':scope > .tree-node');
+        children.forEach(child => {
+            const childCard = child.querySelector('.node-card-wrapper');
+            if (childCard) {
+                const childRect = childCard.getBoundingClientRect();
+                
+                // ponto de chegada centro superior do card filho
+                const childX = childRect.left - containerRect.left + childRect.width / 2;
+                const childY = childRect.top - containerRect.top;
+                
+                // criar linha
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('class', 'tree-line');
+                line.setAttribute('x1', parentX);
+                line.setAttribute('y1', parentY);
+                line.setAttribute('x2', childX);
+                line.setAttribute('y2', childY);
+                
+                svg.appendChild(line);
             }
         });
     }
-    
-    drawLine(x1, y1, x2, y2) {
-        // desenhar linha conectora diagonal simples
-        const line = document.createElement('div');
-        line.className = 'tree-line';
-        
-        const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-        const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
-        
-        line.style.width = `${length}px`;
-        line.style.height = '2px';
-        line.style.left = '50%';
-        line.style.top = '50%';
-        line.style.transform = `translate(calc(-50% + ${x1}px), calc(-50% + ${y1 + 80}px)) rotate(${angle}deg)`;
-        line.style.transformOrigin = '0 0';
-        line.style.background = '#CCCCCC';
-        
-        this.container.appendChild(line);
-        
-        // animar entrada da linha
-        setTimeout(() => {
-            line.classList.add('visible');
-        }, 200);
+
+    render() {
+        this.container.innerHTML = '';
+        const treeNode = this.createNode(this.tree, 0);
+        this.container.appendChild(treeNode);
     }
 }
 
 // inicializar quando a pagina carregar
-document.addEventListener('DOMContentLoaded', () => {
-    const visualizer = new TreeVisualizer();
-    
-    // esconder o botao de popular dados pois ja tem dados estaticos
-    const populateBtn = document.getElementById('populateBtn');
-    if (populateBtn) {
-        populateBtn.style.display = 'none';
-    }
+let treeVisualizer;
+window.addEventListener('DOMContentLoaded', () => {
+    treeVisualizer = new TreeVisualizer();
+    treeVisualizer.init();
 });
