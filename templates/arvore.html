@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Árvore - SRHP{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', path='/css/arvore.css') }}">
+{% endblock %}
+
+{% block content %}
+<h1 class="page-title">árvore</h1>
+
+<div class="tree-page">
+    <div class="tree-scroll-container">
+        <div id="treeContainer" class="tree-container"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', path='/js/arvore.js') }}"></script>
+{% endblock %}
