@@ -1,15 +1,14 @@
 /* pagina de busca */
 .search-page {
     width: 100%;
-    min-height: 100vh;
+    height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-end; /* alinhar tudo para baixo */
     padding: 40px;
-    padding-bottom: 140px; 
+    padding-bottom: 120px; 
     box-sizing: border-box;
-    position: relative;
 }
 
 /* campo de busca */
@@ -17,10 +16,7 @@
     width: 100%;
     max-width: 600px;
     margin-bottom: 6px;
-    position: fixed;
-    bottom: 128px;
-    left: 50%;
-    transform: translateX(-50%);
+    position: relative;
     z-index: 10;
 }
 
@@ -57,7 +53,7 @@
     
     /* posicionar acima do botao */
     position: fixed;
-    bottom: 198px;
+    bottom: 220px;
     left: 50%;
     transform: translateX(-50%);
     max-width: 600px;
@@ -96,14 +92,10 @@
 .products-container {
     width: 100%;
     max-width: 800px;
-    position: fixed;
-    top: 100px;
+    position: absolute;
+    top: 100px; /* posicionar no topo */
     left: 50%;
     transform: translateX(-50%);
-    padding: 20px;
-    box-sizing: border-box;
-    max-height: calc(100vh - 350px);
-    overflow-y: auto;
 }
 
 .products-header {
@@ -225,41 +217,25 @@
 .product-item:nth-child(5) { animation-delay: 0.5s; }
 
 /* responsividade */
-@media (max-width: 1024px) {
-    .search-input-container {
-        max-width: 550px;
-    }
-    
-    .search-results {
-        max-width: 550px;
-    }
-    
-    .products-container {
-        max-width: 90%;
-    }
-}
-
 @media (max-width: 768px) {
     .search-page {
         padding: 20px;
-        padding-bottom: 140px;
+        padding-bottom: 90px;
     }
     
     .search-input-container {
-        max-width: calc(100% - 40px);
-        bottom: 113px; /* 15px (menu bottom) + 88px (menu height) + 10px (spacing) */
+        max-width: 90%;
     }
     
     .search-button {
-        padding: 14px 20px;
+        padding: 16px 24px;
         font-size: 14px;
     }
     
     .search-results {
         padding: 10px;
         max-height: 250px;
-        bottom: 183px; /* 113px (input) + 70px (altura aproximada do input) */
-        max-width: calc(100% - 40px);
+        bottom: 180px;
     }
     
     .category-item {
@@ -268,104 +244,27 @@
     }
     
     .products-container {
-        top: 80px;
-        max-width: calc(100% - 40px);
-        max-height: calc(100vh - 300px);
-        padding: 16px;
-    }
-    
-    .products-header {
-        font-size: 1.5em;
+        padding: 20px;
+        gap: 16px;
     }
     
     .product-item {
         padding: 16px;
-        margin: 8px 0;
     }
     
     .product-name {
         font-size: 16px;
     }
     
+    .product-category {
+        font-size: 12px;
+    }
+    
     .product-price {
-        font-size: 16px;
+        font-size: 18px;
     }
     
     .product-description {
         font-size: 12px;
-    }
-}
-
-@media (max-width: 480px) {
-    .search-page {
-        padding: 16px;
-        padding-bottom: 130px;
-    }
-    
-    .search-input-container {
-        bottom: 110px; /* 12px (menu bottom) + 88px (menu height) + 10px (spacing) */
-        max-width: calc(100% - 32px);
-    }
-    
-    .search-button {
-        padding: 12px 18px;
-        font-size: 13px;
-    }
-    
-    .search-results {
-        bottom: 180px; /* 110px (input) + 70px (altura aproximada do input) */
-        max-width: calc(100% - 32px);
-        padding: 8px;
-        max-height: 200px;
-    }
-    
-    .category-item {
-        padding: 8px 14px;
-        font-size: 13px;
-    }
-    
-    .products-container {
-        top: 60px;
-        max-width: calc(100% - 32px);
-        padding: 12px;
-        max-height: calc(100vh - 280px);
-    }
-    
-    .products-header {
-        font-size: 1.3em;
-        margin-bottom: 16px;
-    }
-    
-    .product-item {
-        padding: 12px;
-        margin: 6px 0;
-    }
-    
-    .product-name {
-        font-size: 14px;
-    }
-    
-    .product-price {
-        font-size: 14px;
-    }
-    
-    .product-breadcrumb {
-        font-size: 0.8em;
-    }
-}
-
-@media (max-width: 360px) {
-    .search-input-container {
-        bottom: 108px; /* 10px (menu bottom) + 88px (menu height) + 10px (spacing) */
-    }
-    
-    .search-results {
-        bottom: 178px; /* 108px (input) + 70px (altura aproximada do input) */
-        max-height: 180px;
-    }
-    
-    .products-container {
-        top: 50px;
-        max-height: calc(100vh - 260px);
     }
 }

@@ -1,15 +1,14 @@
 /* pagina de cadastro */
 .cadastro-page {
     width: 100%;
-    min-height: 100vh;
+    height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-end;
     padding: 40px;
-    padding-bottom: 140px; 
+    padding-bottom: 120px; 
     box-sizing: border-box;
-    position: relative;
 }
 
 /* botao ver lista */
@@ -121,11 +120,7 @@
     padding: 5px;
     background: #E9E9E9;
     border-radius: 30px;
-    position: fixed;
-    bottom: 128px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 50;
+    position: relative;
     transition: all 0.3s;
 }
 
@@ -135,7 +130,7 @@
 
 .tab-button {
     width: 224px;
-    height: 80px;
+    height: 110px;
     border: none;
     border-radius: 26px;
     font-family: 'Inter', sans-serif;
@@ -168,18 +163,13 @@
 
 /* container do formulario */
 .form-container {
-    position: fixed;
-    bottom: 128px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 15px 12px;
+    position: absolute;
+    bottom: 210px;
+    padding: 20px 15px;
     background: #E9E9E9;
     border-radius: 30px;
     width: 457px;
-    max-width: calc(100% - 40px);
     box-sizing: border-box;
-    z-index: 40;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 /* lista de cadastrados */
@@ -379,7 +369,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
 }
 
 .form-header-text {
@@ -393,8 +383,8 @@
 .form-field {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    margin-bottom: 8px;
+    gap: 5px;
+    margin-bottom: 10px;
 }
 
 .form-label {
@@ -406,7 +396,7 @@
 
 .form-input,
 .form-select {
-    height: 40px;
+    height: 45px;
     background: #D3D3D3;
     border-radius: 14px;
     border: none;
@@ -418,11 +408,11 @@
 }
 
 .form-textarea {
-    height: 70px;
+    height: 78px;
     background: #D3D3D3;
     border-radius: 14px;
     border: none;
-    padding: 10px 15px;
+    padding: 12px 15px;
     font-family: 'Inter', sans-serif;
     font-size: 14px;
     color: #222222;
@@ -438,7 +428,7 @@
 /* botao cadastrar */
 .btn-submit {
     width: 100%;
-    height: 40px;
+    height: 45px;
     background: #EBE175;
     border-radius: 31px;
     border: none;
@@ -448,7 +438,7 @@
     font-weight: 500;
     cursor: pointer;
     transition: all 0.3s;
-    margin-top: 8px;
+    margin-top: 10px;
 }
 
 .btn-submit:hover {
@@ -465,28 +455,10 @@
 }
 
 /* responsividade */
-@media (max-width: 1024px) {
-    .form-container {
-        width: 420px;
-        padding: 14px 12px;
-        bottom: 128px;
-    }
-    
-    .tab-button {
-        width: 200px;
-        height: 80px;
-        font-size: 18px;
-    }
-    
-    .tabs-container {
-        bottom: 128px;
-    }
-}
-
 @media (max-width: 768px) {
     .cadastro-page {
         padding: 20px;
-        padding-bottom: 140px;
+        padding-bottom: 90px;
     }
     
     /* ver lista */
@@ -525,7 +497,6 @@
         height: auto;
         padding: 4px;
         gap: 4px;
-        bottom: 113px; /* 15px (menu bottom) + 88px (menu height) + 10px (spacing) */
     }
     
     .tab-button {
@@ -538,8 +509,8 @@
     .form-container {
         width: 90%;
         max-width: 400px;
-        bottom: 113px;
-        padding: 14px 10px;
+        bottom: 110px;
+        padding: 16px 12px;
     }
     
     .form-header-text {
@@ -611,94 +582,5 @@
     .menu-action-btn {
         padding: 8px 12px;
         font-size: 13px;
-    }
-}
-
-@media (max-width: 480px) {
-    .cadastro-page {
-        padding: 16px;
-        padding-bottom: 130px;
-    }
-    
-    .ver-lista-wrapper {
-        top: 12px;
-        left: 12px;
-    }
-    
-    .ver-lista-btn {
-        padding: 3px 12px;
-        font-size: 13px;
-    }
-    
-    .tabs-container {
-        width: calc(100% - 32px);
-        bottom: 110px; /* 12px (menu bottom) + 88px (menu height) + 10px (spacing) */
-        padding: 3px;
-    }
-    
-    .tab-button {
-        height: 80px;
-        font-size: 14px;
-    }
-    
-    .form-container {
-        bottom: 110px;
-        width: calc(100% - 32px);
-        padding: 12px 8px;
-    }
-    
-    .form-header-text {
-        font-size: 10px;
-    }
-    
-    .form-label {
-        font-size: 11px;
-    }
-    
-    .form-input,
-    .form-select {
-        height: 38px;
-        font-size: 12px;
-        padding: 0 10px;
-    }
-    
-    .form-textarea {
-        height: 65px;
-        font-size: 12px;
-        padding: 8px 10px;
-    }
-    
-    .btn-submit {
-        height: 38px;
-        font-size: 13px;
-    }
-}
-
-@media (max-width: 360px) {
-    .tab-button {
-        height: 80px;
-        font-size: 13px;
-    }
-    
-    .tabs-container {
-        bottom: 108px; /* 10px (menu bottom) + 88px (menu height) + 10px (spacing) */
-    }
-    
-    .form-container {
-        bottom: 108px;
-        padding: 10px 6px;
-    }
-    
-    .form-field {
-        margin-bottom: 6px;
-        gap: 3px;
-    }
-    
-    .form-header {
-        margin-bottom: 6px;
-    }
-    
-    .btn-submit {
-        margin-top: 6px;
     }
 }
