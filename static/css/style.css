@@ -8,13 +8,16 @@
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background: white;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
+    width: 100%;
+    min-height: 100vh;
 }
 
 /* container principal */
 .container {
-    width: 1440px;
-    height: 1024px;
+    width: 100%;
+    min-height: 100vh;
     position: relative;
     background: white;
     margin: 0 auto;
@@ -35,11 +38,16 @@ body {
 /* titulo principal ola */
 .main-title {
     position: absolute;
-    left: 637px;
-    top: 454px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
     color: #2B2B2B;
     font-size: 96px;
     font-weight: 500;
+    text-align: center;
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
 }
 
 /* menu de navegacao inferior */
@@ -49,7 +57,7 @@ body {
     bottom: 30px;
     transform: translateX(-50%);
     width: 458px;
-    height: 68px;
+    height: 88px;
     background: #E9E9E9;
     border-radius: 30px;
     padding: 4px 3px;
@@ -62,7 +70,7 @@ body {
 /* item do menu */
 .menu-item {
     width: 150px;
-    height: 60px;
+    height: 80px;
     border-radius: 30px;
     display: flex;
     align-items: center;
@@ -100,20 +108,25 @@ body {
 /* responsividade */
 @media (max-width: 1440px) {
     .container {
-        width: 100vw;
-        height: 100vh;
+        width: 100%;
+    }
+}
+
+@media (max-width: 1024px) {
+    .main-title {
+        font-size: 72px;
+        padding: 18px;
     }
     
-    .main-title {
-        left: 50%;
-        transform: translateX(-50%);
+    .navigation-menu {
+        width: calc(100% - 60px);
+        max-width: 450px;
     }
 }
 
 @media (max-width: 768px) {
     .container {
-        width: 100vw;
-        height: 100vh;
+        width: 100%;
     }
     
     .page-title {
@@ -124,22 +137,20 @@ body {
     
     .main-title {
         font-size: 48px;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
+        padding: 16px;
     }
     
     .navigation-menu {
         width: calc(100% - 40px);
         max-width: 400px;
-        height: 60px;
+        height: 88px;
         bottom: 15px;
     }
     
     .menu-item {
         width: calc(33.333% - 4px);
         min-width: 90px;
-        height: 52px;
+        height: 80px;
     }
     
     .menu-item span {
@@ -156,21 +167,44 @@ body {
     
     .main-title {
         font-size: 36px;
+        padding: 12px;
     }
     
     .navigation-menu {
         width: calc(100% - 24px);
-        height: 56px;
+        height: 88px;
         bottom: 12px;
         padding: 3px;
     }
     
     .menu-item {
-        height: 50px;
+        height: 80px;
         min-width: 80px;
     }
     
     .menu-item span {
         font-size: 13px;
+    }
+}
+
+@media (max-width: 360px) {
+    .main-title {
+        font-size: 32px;
+        padding: 10px;
+    }
+    
+    .navigation-menu {
+        width: calc(100% - 20px);
+        height: 88px;
+        bottom: 10px;
+    }
+    
+    .menu-item {
+        min-width: 70px;
+        height: 80px;
+    }
+    
+    .menu-item span {
+        font-size: 12px;
     }
 }
