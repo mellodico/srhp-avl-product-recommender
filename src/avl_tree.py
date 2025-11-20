@@ -102,7 +102,7 @@ class AVLTree:
         return self._get_height(node.leftChild) - self._get_height(node.rightChild)
     
     def _right_rotate(self, z):
-        """
+        r"""
         SRHP-04: Implementar Rotação Simples Direita (LL)
         Executa uma rotação à direita no nó 'z' (o nó desbalanceado).
         
@@ -131,7 +131,7 @@ class AVLTree:
         return y
     
     def _left_rotate(self, z):
-        """
+        r"""
         SRHP-04: Implementar Rotação Simples Esquerda (RR)
         Executa uma rotação à esquerda no nó 'z' (o nó desbalanceado).
 
