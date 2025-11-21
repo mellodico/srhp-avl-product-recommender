@@ -8,7 +8,7 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.avl_tree import AVLTree
-
+from src.business_logic import SistemaRecomendacao
 
 # --- SRHP-10: Testes de Recomendação de Produtos ---
 
@@ -87,3 +87,37 @@ def test_recommendation_empty_tree():
     tree = AVLTree()
 
     assert tree.recommend(10) == []
+
+# --- SRHP 15 -------
+def test_integration_business_avl_srhp15():
+    """
+    SRHP-15 ou Teste de Itegração (Interface > Negócio > AVL), é um teste super importante
+    que garante que tudo funcione direitinho quando você isere ddos via módulo de negocio.
+    Ele verifica se esses dados são salvos certinhos na AVL e se a recomendação recursiva 
+    está rodando sem problemas. Resumindo 😂, esse teste confirma que a integração entre a 
+    interface, o negócio e a AVL está perfeita, garantindo que tudo está funcionando como 
+    esperado.
+    """
+    # 1. passo: o sistema inicializa a sua própria AVL internamente
+    sistema = SistemaRecomendacao() # não adiciona argumentos
+
+    # 2. passo: vamos usar APENAS o método 'cadastrar_categoria'
+    sistema.cadastrar_categoria("Livros", "Categoria Pai")
+
+    # CORREÇÃO AQUI: Mude de "Livros" para "Ficção"
+    sistema.cadastrar_categoria("Ficção", "Gênero Literário") 
+    
+    # Cadastrando um produto na "subcategoria"
+    sistema.cadastrar_produto("Ficção", 101, "1984 - George Orwell", 40.00)
+
+    # 3. passo: Verificação (Prova Real 📝)
+    # Pedimos recomendação da categoria PAI 👨 ("Livros")
+    # O sistema deve descer a árvore e achar o produto que está em "Ficção"
+    recomendacoes = sistema.recomendar_produtos("Livros")
+
+    # Verifica se a lista não está vazia
+    assert len(recomendacoes) > 0, "A lista de recomendações não retornou nada!"
+
+    # Verifica se achou o produto correto ✅
+    nomes_encontrados = [item["produto"].nome for item in recomendacoes]
+    assert "1984 - George Orwell" in nomes_encontrados
